@@ -39,7 +39,7 @@ int check()//查询空闲的连接口的索引
 
 DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
 {
-    int receByt = 0; //接收到的字节数
+    int receByt = 0;
     char RecvBuf[BufSize]; //接收缓冲区
     char SendBuf[BufSize]; //发送缓冲区
     //char exitBuf[5];
@@ -54,25 +54,6 @@ DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
         receByt = recv(clientSockets[num], RecvBuf, sizeof(RecvBuf), 0); //接收信息
         if (receByt > 0) //接收成功
         {
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    exitBuf[i] = RecvBuf[i];
-            //}
-            //if (strcmp(exitBuf, "exit"))
-            //{
-            //    auto currentTime = chrono::system_clock::now();
-            //    time_t timestamp = chrono::system_clock::to_time_t(currentTime);
-            //    tm localTime;
-            //    localtime_s(&localTime, &timestamp);
-            //    char timeStr[50];
-            //    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d--%H:%M:%S", &localTime); // 格式化时间
-            //    cout << "Client " << clientSockets[num] << " exit! Time: " << timeStr << endl;
-            //    closesocket(clientSockets[num]);
-            //    current_connect_count--;
-            //    condition[num] = 0;
-            //    send(clientSockets[num], "Your server has been closed!", sizeof(SendBuf), 0);
-            //    return 0;
-            //}
             //创建时间戳，记录当前通讯时间
             auto currentTime = chrono::system_clock::now();
             time_t timestamp = chrono::system_clock::to_time_t(currentTime);
@@ -188,7 +169,7 @@ int main()
                 WSACleanup();
                 exit(EXIT_FAILURE);
             }
-            condition[num] = 1;//连接位 置1表示占用
+            condition[num] = 1;//连接位置1表示占用
             current_connect_count++; //当前连接数加1
             //创建时间戳，记录当前通讯时间
             auto currentTime = chrono::system_clock::now();

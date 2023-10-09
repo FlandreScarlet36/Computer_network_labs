@@ -34,32 +34,15 @@ DWORD WINAPI recvThread() //接收消息线程
 
 int main()
 {
-	//初始化DLL
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-	{
-		perror("Error in Initializing Socket DLL!\n");
-		cout << endl;
-		exit(EXIT_FAILURE);
-	}
-	cout << "Initializing Socket DLL is successful!\n" << endl;
-
-	//创建客户端套接字
 	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (clientSocket == INVALID_SOCKET)
-	{
-		cout << "Error in Creating Socket!\n" << endl;
-		exit(EXIT_FAILURE);
-		return -1;
-	}
-	cout << "Creating Socket is successful!\n" << endl;
 
 	//绑定服务器地址
 	servAddr.sin_family = AF_INET;//地址类型
 	servAddr.sin_port = htons(PORT);//端口号
 	if (inet_pton(AF_INET, "127.0.0.1", &(servAddr.sin_addr)) != 1) {
-		cout << "Error in Inet_pton" << endl;
+		cout << "Inet_pton error!" << endl;
 		exit(EXIT_FAILURE);
 	}
 	//servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
@@ -68,12 +51,12 @@ int main()
 	//向服务器发起请求
 	if (connect(clientSocket, (SOCKADDR*)&servAddr, sizeof(SOCKADDR)) == SOCKET_ERROR)
 	{
-		cout << "Error in Connection: " << WSAGetLastError() << endl;
+		cout << "Connection failed on: " << WSAGetLastError() << endl;
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		cout << "Connect is successful! \n" << endl;
+		cout << "Connection success!\n" << endl;
 	}
 
 
@@ -81,13 +64,13 @@ int main()
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)recvThread, NULL, 0, 0);
 
 	char buf[BufSize] = {};
-	cout << "Enter a message to send or 'exit' to end the chatting!" << endl;
+	cout << "Enter 'logout' to quit!" << endl;
 	
 	//发送消息
 	while (true)
 	{
 		cin.getline(buf, sizeof(buf));
-		if (strcmp(buf, "exit") == 0) //输入exit退出
+		if (strcmp(buf, "logout") == 0) //输入exit退出
 		{
 			break;
 		}
