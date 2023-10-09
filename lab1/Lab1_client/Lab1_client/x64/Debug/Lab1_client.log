@@ -1,0 +1,3 @@
+﻿  client.cpp
+D:\文件\计算机网络\lab1\codes\client.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  Lab1_client.vcxproj -> D:\文件\计算机网络\lab1\Lab1_client\x64\Debug\Lab1_client.exe

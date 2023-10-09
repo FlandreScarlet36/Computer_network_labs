@@ -1,0 +1,11 @@
+﻿  server.cpp
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(51,19): warning C4311: “类型强制转换”: 从“LPVOID”到“int”的指针截断
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(51,19): warning C4302: “类型强制转换”: 从“LPVOID”到“int”截断
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(84,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“SOCKET”
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(84,49): message : 请考虑在格式字符串中使用“%lld”
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(84,49): message : 请考虑在格式字符串中使用“%Id”
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(84,49): message : 请考虑在格式字符串中使用“%I64d”
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(203,91): warning C4312: “类型强制转换”: 从“int”转换到更大的“LPVOID”
+D:\文件\计算机网络\lab1\Lab1_server\server.cpp(118): warning C4715: “ThreadFunction”: 不是所有的控件路径都返回值
+  Lab1_server.vcxproj -> D:\文件\计算机网络\lab1\Lab1_server\x64\Debug\Lab1_server.exe
