@@ -5,6 +5,7 @@
 #include <thread>
 #include <WinSock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 //#include <ctime>  // 添加时间库
 
 #pragma comment(lib,"ws2_32.lib")   //socket库
@@ -21,6 +22,7 @@ SOCKET clientSockets[MaxClient];//客户端socket数组
 SOCKET serverSocket;//服务器端socket
 SOCKADDR_IN clientAddrs[MaxClient];//客户端地址数组
 SOCKADDR_IN serverAddr;//定义服务器地址
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int current_connect_count = 0; //当前连接的客户数
 int condition[MaxClient] = {};//每一个连接的情况
@@ -60,12 +62,14 @@ DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
             tm localTime;
             localtime_s(&localTime, &timestamp);
             char timeStr[50];
-            strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
-            cout << "Client " << clientSockets[num] << ": " << RecvBuf << " (" << timeStr <<")" << endl;
-            sprintf_s(SendBuf, sizeof(SendBuf), "%d: %s %s ", clientSockets[num], RecvBuf, timeStr); // 格式化发送信息
-            for (int i = 0; i < MaxClient; i++)//将消息同步到所有聊天窗口
+            strftime(timeStr, sizeof(timeStr), "(%Y/%m/%d %H:%M:%S)", &localTime); // 格式化时间
+            SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout << "Client " << clientSockets[num] << ": " << RecvBuf << " " << timeStr << endl;
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            sprintf_s(SendBuf, sizeof(SendBuf), "%s From %d %s ", RecvBuf, clientSockets[num], timeStr); // 格式化发送信息
+            for (int i = 0; i < MaxClient; i++)//将消息同步到除发送者的所有聊天窗口
             {
-                if (condition[i] == 1)
+                if (condition[i] == 1&&i!=num)
                 {
                     send(clientSockets[i], SendBuf, sizeof(SendBuf), 0);//发送信息
                 }
@@ -101,7 +105,6 @@ DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
 
 int main()
 {
-//    system("chcp 936");//防止乱码
     //初始化DLL
     WSAData wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData); //MAKEWORD（主版本号，副版本号）
@@ -114,7 +117,7 @@ int main()
 
     //创建服务器端套接字
     serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);//IPv4地址族，流式套接字，TCP协议
-    if (serverSocket == INVALID_SOCKET)//错误处理
+    if (serverSocket == INVALID_SOCKET)
     {
         perror("Error in Creating Socket!");
         exit(EXIT_FAILURE);
@@ -122,9 +125,9 @@ int main()
     cout << "Creating Socket successful!" << endl;
 
     //绑定服务器地址
-    serverAddr.sin_family = AF_INET;//地址类型
+    serverAddr.sin_family = AF_INET;//地址类型为IPv4
     serverAddr.sin_port = htons(PORT);//端口号
-	if (inet_pton(AF_INET, "127.0.0.1", &(serverAddr.sin_addr)) != 1) {
+	if (inet_pton(AF_INET, "127.0.0.1", &(serverAddr.sin_addr)) != 1) {//将字符串形式的 IP 地址转换为二进制，并存储到 serverAddr.sin_addr 中
 		cout << "Error in Inet_pton" << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -178,11 +181,9 @@ int main()
             localtime_s(&localTime, &timestamp);
             char timeStr[50];
             strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
-
             cout << "Client " << clientSockets[num] << " connected at " << timeStr << endl;
             cout << "Current user: " << current_connect_count << endl;
-            HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID)num, 0, NULL);//创建线程
-            //HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID) & (clientSockets[num]), 0, NULL);
+            HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID)num, 0, NULL);//为当前用户创建线程
             if (Thread == NULL)//线程创建失败
             {
                 perror("Thread failed!\n");
