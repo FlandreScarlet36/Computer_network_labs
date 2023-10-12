@@ -8,9 +8,9 @@ D:\文件\计算机网络\lab1\Lab1_server\server.cpp(65,49): message : 请考�
 D:\文件\计算机网络\lab1\Lab1_server\server.cpp(65,49): message : 请考虑在格式字符串中使用“%I64d”
 D:\文件\计算机网络\lab1\Lab1_server\server.cpp(184,91): warning C4312: “类型强制转换”: 从“int”转换到更大的“LPVOID”
   正在生成代码
-  1 of 26 functions ( 3.8%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
 D:\文件\计算机网络\lab1\Lab1_server\server.cpp(99): warning C4715: “ThreadFunction”: 不是所有的控件路径都返回值
+  2 of 26 functions ( 7.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   Lab1_server.vcxproj -> D:\文件\计算机网络\lab1\Lab1_server\x64\Release\Lab1_server.exe

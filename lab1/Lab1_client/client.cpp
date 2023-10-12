@@ -56,7 +56,7 @@ int main()
 	}
 	else
 	{
-		cout << "Connection success!\n" << endl;
+		cout << "Connection success!" << endl;
 	}
 
 

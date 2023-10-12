@@ -60,9 +60,9 @@ DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
             tm localTime;
             localtime_s(&localTime, &timestamp);
             char timeStr[50];
-            strftime(timeStr, sizeof(timeStr), "%Y-%m-%d--%H:%M:%S", &localTime); // 格式化时间
-            cout << "Client " << clientSockets[num] << " : " << RecvBuf << " --" << timeStr << endl;
-            sprintf_s(SendBuf, sizeof(SendBuf), "%d: %s --%s ", clientSockets[num], RecvBuf, timeStr); // 格式化发送信息
+            strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
+            cout << "Client " << clientSockets[num] << ": " << RecvBuf << " (" << timeStr <<")" << endl;
+            sprintf_s(SendBuf, sizeof(SendBuf), "%d: %s %s ", clientSockets[num], RecvBuf, timeStr); // 格式化发送信息
             for (int i = 0; i < MaxClient; i++)//将消息同步到所有聊天窗口
             {
                 if (condition[i] == 1)
@@ -81,12 +81,12 @@ DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
                 tm localTime;
                 localtime_s(&localTime, &timestamp);
                 char timeStr[50];
-                strftime(timeStr, sizeof(timeStr), "%Y-%m-%d--%H:%M:%S", &localTime); // 格式化时间
-                cout << "Client " << clientSockets[num] << " exit! Time: " << timeStr << endl;
+                strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
+                cout << "Client " << clientSockets[num] << " exited at " << timeStr << endl;
                 closesocket(clientSockets[num]);
                 current_connect_count--;
                 condition[num] = 0;
-                cout << "current_connect_count: " << current_connect_count << endl;
+                cout << "Current user: " << current_connect_count << endl;
                 return 0;
             }
             else
@@ -107,19 +107,19 @@ int main()
     WSAStartup(MAKEWORD(2, 2), &wsaData); //MAKEWORD（主版本号，副版本号）
     if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)//错误处理 如果初始化成功，wVersion的低位为2，高位为2，存储为0x0202
     {
-        perror("Error in Initializing Socket DLL!\n");
+        perror("Error in Initializing Socket DLL!");
         exit(EXIT_FAILURE);
     }
-    cout << "Initializeing Socket DLL is successful!\n" << endl;
+    cout << "Initializeing Socket DLL successful!" << endl;
 
     //创建服务器端套接字
     serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);//IPv4地址族，流式套接字，TCP协议
     if (serverSocket == INVALID_SOCKET)//错误处理
     {
-        perror("Error in Creating Socket!\n");
+        perror("Error in Creating Socket!");
         exit(EXIT_FAILURE);
     }
-    cout << "Creating Socket is successful!\n" << endl;
+    cout << "Creating Socket successful!" << endl;
 
     //绑定服务器地址
     serverAddr.sin_family = AF_INET;//地址类型
@@ -131,28 +131,28 @@ int main()
 //	serverAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
     if (bind(serverSocket, (LPSOCKADDR)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)//将服务器套接字与服务器地址和端口绑定
     {
-        perror("Binding is failed!\n");
+        perror("Binding failed!");
         exit(EXIT_FAILURE);
     }
     else
     {
-        cout << "Binding to port " << PORT << " is successful!\n" << endl;
+        cout << "Binding to port " << PORT << " successful!" << endl;
     }
 
     //设置监听
     if (listen(serverSocket, MaxClient) != 0)
     {
-        perror("Listening is failed! \n");
+        perror("Listening failed! ");
         exit(EXIT_FAILURE);
     }
     else
     {
-        cout << "Listening is successful! \n" << endl;
+        cout << "Listening successful!" << endl;
     }
 
-    cout << "The Server is ready! Waiting for Client request...\n\n" << endl;
+    cout << "Waiting for Client request..." << endl;
 
-    cout << "current_connect_count: " << current_connect_count << endl;
+    cout << "Current user: " << current_connect_count << endl;
 
     //循环接收客户端请求
     while (true)
@@ -164,7 +164,7 @@ int main()
             clientSockets[num] = accept(serverSocket, (sockaddr*)&clientAddrs[num], &addrlen);//接收客户端请求
             if (clientSockets[num] == SOCKET_ERROR)//错误处理
             {
-                perror("The Client is failed! \n");
+                perror("Client failed! \n");
                 closesocket(serverSocket);
                 WSACleanup();
                 exit(EXIT_FAILURE);
@@ -177,15 +177,15 @@ int main()
             tm localTime;
             localtime_s(&localTime, &timestamp);
             char timeStr[50];
-            strftime(timeStr, sizeof(timeStr), "%Y-%m-%d--%H:%M:%S", &localTime); // 格式化时间
+            strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
 
-            cout << "The Client " << clientSockets[num] << " is connected. Time is " << timeStr << endl;
-            cout << "current_connect_count: " << current_connect_count << endl;
+            cout << "Client " << clientSockets[num] << " connected at " << timeStr << endl;
+            cout << "Current user: " << current_connect_count << endl;
             HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID)num, 0, NULL);//创建线程
             //HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID) & (clientSockets[num]), 0, NULL);
             if (Thread == NULL)//线程创建失败
             {
-                perror("The Thread is failed!\n");
+                perror("Thread failed!\n");
                 exit(EXIT_FAILURE);
             }
             else
@@ -195,7 +195,7 @@ int main()
         }
         else
         {
-            cout << "Fulling..." << endl;
+            cout << "Server is busy now..." << endl;
         }
     }
 
