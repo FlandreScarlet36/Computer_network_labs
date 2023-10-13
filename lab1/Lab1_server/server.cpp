@@ -12,7 +12,7 @@
 
 using namespace std;
 
-#define PORT 8000  //端口号
+#define PORT 6262  //端口号
 #define BufSize 1024  //缓冲区大小
 #define MaxClient 5 //最大连接数 = MaxClient - 1
 #define _CRT_SECURE_NO_WARNINGS //禁止使用不安全的函数报错

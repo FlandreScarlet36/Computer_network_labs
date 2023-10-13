@@ -7,7 +7,7 @@
 #pragma comment(lib,"ws2_32.lib")   //socket库
 using namespace std;
 
-#define PORT 8000  //端口号
+#define PORT 6262  //端口号
 #define BufSize 1024  //缓冲区大小
 SOCKET clientSocket; //定义客户端socket
 SOCKADDR_IN servAddr; //定义服务器地址
@@ -51,8 +51,6 @@ int main()
 		cout << "Inet_pton error!" << endl;
 		exit(EXIT_FAILURE);
 	}
-	//servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-
 
 	//向服务器发起请求
 	if (connect(clientSocket, (SOCKADDR*)&servAddr, sizeof(SOCKADDR)) == SOCKET_ERROR)
@@ -64,7 +62,6 @@ int main()
 	{
 		cout << "Connection success!" << endl;
 	}
-
 
 	//创建消息线程
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)recvThread, NULL, 0, 0);
