@@ -1,103 +1,90 @@
-#include<winsock2.h>
-#include<stdio.h>
-#include<time.h>
-#pragma comment(lib,"ws2_32.lib")
-const char ip[15]="127.0.0.1";
-const int port=6000;
-int id;
-void getTime(char* buff)
+#include <iostream>
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#include <cstring>
+#include <windows.h>
+
+#pragma comment(lib,"ws2_32.lib")   //socket库
+using namespace std;
+
+#define PORT 6262  //端口号
+#define BufSize 1024  //缓冲区大小
+SOCKET clientSocket; //定义客户端socket
+SOCKADDR_IN servAddr; //定义服务器地址
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+DWORD WINAPI recvThread() //接收消息线程
 {
-    time_t mytime;
-	time(&mytime);
-	mytime = time(NULL); 
-	time_t PTime = 0;
-    time_t time = mytime;
-    struct tm* timeP;
-    char buffer[128];
-    PTime = time;
-    timeP = localtime(&PTime);
-	sprintf(buff,"%d/%d/%d %d:%d:%d:",1900+ timeP->tm_year,1+ timeP->tm_mon,timeP->tm_mday, timeP->tm_hour, timeP->tm_min, timeP->tm_sec);
+	while (true)
+	{
+		char buffer[BufSize] = {};//接收数据缓冲区
+		if (recv(clientSocket, buffer, sizeof(buffer), 0) > 0)
+		{
+			SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+			cout << buffer << endl;
+			SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+			cout << ">>";
+
+		}
+		else if (recv(clientSocket, buffer, sizeof(buffer), 0) < 0)
+		{
+			cout << "Connection lost!" << endl;
+			break;
+		}
+	}
+	Sleep(100);//延时100ms
+	return 0;
 }
-DWORD WINAPI receiveMessage(LPVOID lparam)
-{
-    SOCKET clientSocket=*((SOCKET*)lparam);
-    char receiveBuffer[100];
-    while(1)
-    {
-        int receiveLen=recv(clientSocket,receiveBuffer,100,0);
-        if(receiveLen<0)
-        {
-            printf("fail to receive\n");
-            break;
-        }
-        else if(receiveBuffer[0]=='i')
-        {
-            id=receiveBuffer[2]-'0';
-            printf("welocme! client %d\n",id);
-        }
-        else if(receiveBuffer[0]=='m')
-        {
-            printf("client %d message: %s \n",id^1,receiveBuffer+2);
-        }
-        else if(receiveBuffer[0]=='e')
-        {
-            printf("client %d exit\n",id^1);
-        }
-    }
-}
+
 int main()
 {
-    WSADATA wsaData;
-    int err;
-    err=WSAStartup(MAKEWORD(1,1),&wsaData);
-    if(!err)printf("succeed to open client socket\n");
-    else printf("wrong \n");
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    SOCKET clientSocket=socket(AF_INET,SOCK_STREAM,0);
+	//绑定服务器地址
+	servAddr.sin_family = AF_INET;//地址类型
+	servAddr.sin_port = htons(PORT);//端口号
+	if (inet_pton(AF_INET, "127.0.0.1", &(servAddr.sin_addr)) != 1) {
+		cout << "Inet_pton error!" << endl;
+		exit(EXIT_FAILURE);
+	}
 
-    SOCKADDR_IN clientSocket_in;//server address info
-    clientSocket_in.sin_addr.S_un.S_addr=inet_addr(ip);
-    clientSocket_in.sin_family=AF_INET;
-    clientSocket_in.sin_port=htons(port);
+	//向服务器发起请求
+	if (connect(clientSocket, (SOCKADDR*)&servAddr, sizeof(SOCKADDR)) == SOCKET_ERROR)
+	{
+		cout << "Connection failed on: " << WSAGetLastError() << endl;
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		cout << "Connection success!" << endl;
+	}
 
+	//创建消息线程
+	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)recvThread, NULL, 0, 0);
 
-    if(SOCKET_ERROR==connect(clientSocket,(SOCKADDR*)&clientSocket_in,sizeof(SOCKADDR)))
-    {
-        printf("fail to connect\n");
-        WSACleanup();
-        return 0;
-    }
-    else printf("succeed to connect\n");
-    
-    
-    
-    HANDLE hThread=CreateThread(NULL,NULL,&receiveMessage,&clientSocket,0,NULL);
-    char scanfBuffer[100];
-    char sendBuffer[100];
-    char timeBuffer[100];
-    while(1)
-    {
-        scanf("%s",&scanfBuffer);
+	char buf[BufSize] = {};
+	cout << "Enter 'logout' to quit." << endl;
+	
+	//发送消息
+	while (true)
+	{
+		SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+		cout << ">>";
+		cin.getline(buf, sizeof(buf));
+		if (strcmp(buf, "logout") == 0) //输入exit退出
+		{
+			break;
+		}
+		send(clientSocket, buf, sizeof(buf), 0);//发送消息
+		SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+	}
 
-        if(strcmp(scanfBuffer,"exit"))
-        {
-            getTime(timeBuffer);
-            sprintf(sendBuffer,"m:%s %s",timeBuffer,scanfBuffer);
-        }
-        else sprintf(sendBuffer,"e:");
-            
-        
-        int sendLen=send(clientSocket,sendBuffer,100,0);
-        if(sendLen<0)
-        {
-            printf("fail to send\n");
-            break;
-        }
-        else if(sendBuffer[0]=='m')printf("successfully send\n");
-        else if(sendBuffer[0]=='e')break;
-    }
-    CloseHandle(hThread);
-    closesocket(clientSocket);
-    WSACleanup();
-    return 0;
+	closesocket(clientSocket);
+	WSACleanup();
+
+	return 0;
 }

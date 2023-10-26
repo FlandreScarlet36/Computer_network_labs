@@ -9,9 +9,10 @@ const port = 6200;
 
 app.listen(port, '0.0.0.0', () => {
     const networkInterfaces = os.networkInterfaces();
-    let ipAddress;
+    let ipAddress = '127.0.0.1';
 
     // 遍历网络接口，找到非 localhost 下的 IPv4 地址
+    
     Object.keys(networkInterfaces).forEach((interfaceName) => {
         networkInterfaces[interfaceName].forEach((networkInterface) => {
             if (!networkInterface.internal && networkInterface.family === 'IPv4') {
@@ -19,6 +20,7 @@ app.listen(port, '0.0.0.0', () => {
             }
         });
     });
+    
     console.log(`Availble on:`);
     console.log(`http://localhost:${port}`);
     console.log(`http://${ipAddress}:${port}`);

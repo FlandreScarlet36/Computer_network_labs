@@ -1,106 +1,208 @@
-#include<winsock2.h>
-#include<stdio.h>
-#include<time.h>
-#pragma comment(lib,"ws2_32.lib")
-const int port=6000;
-struct param
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <chrono>
+#include <thread>
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+//#include <ctime>  // 添加时间库
+
+#pragma comment(lib,"ws2_32.lib")   //socket库
+
+using namespace std;
+
+#define PORT 6262  //端口号
+#define BufSize 1024  //缓冲区大小
+#define MaxClient 5 //最大连接数 = MaxClient - 1
+#define _CRT_SECURE_NO_WARNINGS //禁止使用不安全的函数报错
+#define _WINSOCK_DEPRECATED_NO_WARNINGS //禁止使用旧版本的函数报错
+
+SOCKET clientSockets[MaxClient];//客户端socket数组
+SOCKET serverSocket;//服务器端socket
+SOCKADDR_IN clientAddrs[MaxClient];//客户端地址数组
+SOCKADDR_IN serverAddr;//定义服务器地址
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+int current_connect_count = 0; //当前连接的客户数
+int condition[MaxClient] = {};//每一个连接的情况
+
+int check()//查询空闲的连接口的索引
 {
-    SOCKET s;
-    SOCKADDR_IN addr;
-    int id;
-}p[5];
-int num=0;
-void getTime(char* buff)
-{
-    time_t mytime;
-	time(&mytime);
-	mytime = time(NULL); 
-	time_t PTime = 0;
-    time_t time = mytime;
-    struct tm* timeP;
-    char buffer[128];
-    PTime = time;
-    timeP = localtime(&PTime);
-	sprintf(buff,"%d/%d/%d %d:%d:%d:",1900+ timeP->tm_year,1+ timeP->tm_mon,timeP->tm_mday, timeP->tm_hour, timeP->tm_min, timeP->tm_sec);
-}
-DWORD WINAPI createClient(LPVOID lparam)
-{
-    param* pp=(param*)lparam;
-    SOCKET serverConnect=pp->s;
-    int id=pp->id;
-    int pid=id^1;
-    //HANDLE hThread=CreateThread(NULL,NULL,&receiveMessage,&serverConnect,0,NULL);
-    printf("client %d connect\n",id);
-    char receiveBuffer[100];
-    while(1)
+    for (int i = 0; i < MaxClient; i++)
     {
-        int receiveLen=recv(serverConnect,receiveBuffer,100,0);
-        if(receiveLen<0)
+        if (condition[i] == 0)//连接空闲
         {
-            printf("fail to receive\n");
-            break;
+            return i;
         }
-        else 
+    }
+    exit(EXIT_FAILURE);
+}
+
+DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
+{
+    int receByt = 0;
+    char RecvBuf[BufSize]; //接收缓冲区
+    char SendBuf[BufSize]; //发送缓冲区
+    //char exitBuf[5];
+    //SOCKET sock = *((SOCKET*)lpParameter);
+    
+    //循环接收信息
+    while (true)
+    {
+        int num = (int)lpParameter; //当前连接的索引
+        Sleep(100); //延时100ms
+        //receByt = recv(sock, RecvBuf, sizeof(RecvBuf), 0);
+        receByt = recv(clientSockets[num], RecvBuf, sizeof(RecvBuf), 0); //接收信息
+        if (receByt > 0) //接收成功
         {
-            printf("client %d send message to client %d: %s \n",id,pid,receiveBuffer);
-            //printf("client %d socket %d,client %d socket %d\n",id,p[id].s,pid,p[pid].s);
-            SOCKET serverConnect2=p[pid].s;
-            int sendLen=send(serverConnect2,receiveBuffer,100,0);
-            if(sendLen<0)
+            //创建时间戳，记录当前通讯时间
+            auto currentTime = chrono::system_clock::now();
+            time_t timestamp = chrono::system_clock::to_time_t(currentTime);
+            tm localTime;
+            localtime_s(&localTime, &timestamp);
+            char timeStr[50];
+            strftime(timeStr, sizeof(timeStr), "(%Y/%m/%d %H:%M:%S)", &localTime); // 格式化时间
+            SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout << "Client " << clientSockets[num] << ": " << RecvBuf << " " << timeStr << endl;
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            sprintf_s(SendBuf, sizeof(SendBuf), "%s From %d %s ", RecvBuf, clientSockets[num], timeStr); // 格式化发送信息
+            for (int i = 0; i < MaxClient; i++)//将消息同步到除发送者的所有聊天窗口
             {
-                printf("server to client %d send error",pid);
+                if (condition[i] == 1&&i!=num)
+                {
+                    send(clientSockets[i], SendBuf, sizeof(SendBuf), 0);//发送信息
+                }
             }
-            if(receiveBuffer[0]=='e')
+        }
+        else //接收失败
+        {
+            if (WSAGetLastError() == 10054)//客户端主动关闭连接
             {
-                num--;
-                printf("client %d exit\n",pid);
+                //创建时间戳，记录当前通讯时间
+                auto currentTime = chrono::system_clock::now();
+                time_t timestamp = chrono::system_clock::to_time_t(currentTime);
+                tm localTime;
+                localtime_s(&localTime, &timestamp);
+                char timeStr[50];
+                strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
+                cout << "Client " << clientSockets[num] << " exited at " << timeStr << endl;
+                closesocket(clientSockets[num]);
+                current_connect_count--;
+                condition[num] = 0;
+                cout << "Current user: " << current_connect_count << endl;
+                return 0;
+            }
+            else
+            {
+                cout << "Failed to receive, Error:" << WSAGetLastError() << endl;
+                break;
             }
         }
     }
 }
+
+
 int main()
 {
-    WSADATA wsaData;
-    int err=WSAStartup(MAKEWORD(1,1),&wsaData);
-    if(!err)printf("succeed to open server socket\n");
-    else printf("wrong \n");
-    
-    SOCKET serverSocket=socket(AF_INET,SOCK_STREAM,0);
-
-    SOCKADDR_IN addr;
-    addr.sin_addr.S_un.S_addr=htonl(INADDR_ANY);
-    addr.sin_port=htons(port);
-    addr.sin_family=AF_INET;
-
-    int bindRes=bind(serverSocket,(SOCKADDR*)&addr,sizeof(SOCKADDR));
-    if(bindRes==SOCKET_ERROR)printf("fail to bind\n");
-    else printf("succeed to bind\n");
-
-    int lisetenRes=listen(serverSocket,2);
-    if(bindRes<0)printf("fail to listen\n");
-    else printf("succeed to listen\n");
-    int len=sizeof(SOCKADDR);
-    while(1)
+    //初始化DLL
+    WSAData wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData); //MAKEWORD（主版本号，副版本号）
+    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)//错误处理 如果初始化成功，wVersion的低位为2，高位为2，存储为0x0202
     {
-        p[num].s=accept(serverSocket,(SOCKADDR*)&p[num].addr,&len);
-        //printf("client 0 socket %d,client 1 socket %d,client 3 socket %d\n",p[0].s,p[1].s,p[2].s);
-        SOCKET serverConnect=p[num].s;
-        if(serverConnect==SOCKET_ERROR)
-        {
-            printf("fail to connect\n");
-            WSACleanup();
-            return 0;
-        }
-
-        char idBuffer[10];
-        sprintf(idBuffer,"i:%d",num);
-        send(serverConnect,idBuffer,10,0);
-        p[num].id=num;
-        HANDLE h=CreateThread(NULL,NULL,&createClient,&p[num],0,NULL);
-        num++;
-        CloseHandle(h);
+        perror("Error in Initializing Socket DLL!");
+        exit(EXIT_FAILURE);
     }
+    cout << "Initializeing Socket DLL successful!" << endl;
+
+    //创建服务器端套接字
+    serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);//IPv4地址族，流式套接字，TCP协议
+    if (serverSocket == INVALID_SOCKET)
+    {
+        perror("Error in Creating Socket!");
+        exit(EXIT_FAILURE);
+    }
+    cout << "Creating Socket successful!" << endl;
+
+    //绑定服务器地址
+    serverAddr.sin_family = AF_INET;//地址类型为IPv4
+    serverAddr.sin_port = htons(PORT);//端口号
+	if (inet_pton(AF_INET, "127.0.0.1", &(serverAddr.sin_addr)) != 1) {//将字符串形式的 IP 地址转换为二进制，并存储到 serverAddr.sin_addr 中
+		cout << "Error in Inet_pton" << endl;
+		exit(EXIT_FAILURE);
+	}
+//	serverAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+    if (bind(serverSocket, (LPSOCKADDR)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)//将服务器套接字与服务器地址和端口绑定
+    {
+        perror("Binding failed!");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        cout << "Binding to port " << PORT << " successful!" << endl;
+    }
+
+    //设置监听
+    if (listen(serverSocket, MaxClient) != 0)
+    {
+        perror("Listening failed! ");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        cout << "Listening successful!" << endl;
+    }
+
+    cout << "Waiting for Client request..." << endl;
+
+    cout << "Current user: " << current_connect_count << endl;
+
+    //循环接收客户端请求
+    while (true)
+    {
+        if (current_connect_count < MaxClient)
+        {
+            int num = check();
+            int addrlen = sizeof(SOCKADDR);
+            clientSockets[num] = accept(serverSocket, (sockaddr*)&clientAddrs[num], &addrlen);//接收客户端请求
+            if (clientSockets[num] == SOCKET_ERROR)//错误处理
+            {
+                perror("Client failed! \n");
+                closesocket(serverSocket);
+                WSACleanup();
+                exit(EXIT_FAILURE);
+            }
+            condition[num] = 1;//连接位置1表示占用
+            current_connect_count++; //当前连接数加1
+            //创建时间戳，记录当前通讯时间
+            auto currentTime = chrono::system_clock::now();
+            time_t timestamp = chrono::system_clock::to_time_t(currentTime);
+            tm localTime;
+            localtime_s(&localTime, &timestamp);
+            char timeStr[50];
+            strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
+            cout << "Client " << clientSockets[num] << " connected at " << timeStr << endl;
+            cout << "Current user: " << current_connect_count << endl;
+            HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID)num, 0, NULL);//为当前用户创建线程
+            if (Thread == NULL)//线程创建失败
+            {
+                perror("Thread failed!\n");
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                CloseHandle(Thread);
+            }
+        }
+        else
+        {
+            cout << "Server is busy now..." << endl;
+        }
+    }
+
     closesocket(serverSocket);
     WSACleanup();
+
     return 0;
 }
+
