@@ -177,8 +177,56 @@
             <a class="github" href="https://github.com/FlandreScarlet36" target="_blank">
                 访问我的Github
             </a>
+            <div class="audio">
+                <p>音频介绍</p>
+                <audio id="audioElement" src="audio.wav"></audio>
+                <button id="playButton" onclick="togglePlay()"></button>
+                <div class="progressBar">
+                    <div class="progressBarFill" :style="{ width: progress + '%' }"></div>
+                </div>
+            </div>
         </div>
     </div>
+    <script>
+        var audioElement = document.getElementById('audioElement');
+        audioElement.addEventListener('timeupdate', updateProgressBar);
+        audioElement.addEventListener('ended', resetAudio);
+
+        var isPlaying = false;
+        var playButton = document.getElementById('playButton');
+        playButton.textContent = isPlaying ? '⏸' : '▶️';
+        var progress = 0;
+
+        function togglePlay() {
+            if (isPlaying) {
+                audioElement.pause();
+                playButton.textContent = '▶️';
+            } else {
+                audioElement.play();
+                playButton.textContent = '⏸';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function updateProgressBar() {
+            var progressBarFill = document.querySelector('.progressBarFill');
+            progress = (audioElement.currentTime / audioElement.duration) * 100;
+            progressBarFill.style.width = progress + '%';
+        }
+
+        function resetAudio() {
+            audioElement.currentTime = 0;
+            progress = 0;
+            isPlaying = false;
+            playButton.textContent = '▶️';
+        }
+
+        var audioElement = new Audio('audio.wav');
+        audioElement.addEventListener('timeupdate', updateProgressBar);
+        audioElement.addEventListener('ended', resetAudio);
+        var isPlaying = false;
+        var progress = 0;
+    </script>
 </body>
 
 </html>
