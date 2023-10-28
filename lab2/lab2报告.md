@@ -8,9 +8,9 @@
 
 （3）使用HTTP，不要使用HTTPS。
 
-## 实验过程
+# 实验过程
 
-### 搭建服务器
+## 搭建服务器
 - 使用Node.js在本地部署服务器。
 
   ```javascript
@@ -42,220 +42,141 @@
   });
   ```
 
+  在文件夹下打开命令行窗口，运行Node命令即可部署服务器。
+
+## 网页HTML设计
+- 网页包括文本信息，logo，音频信息，使用JavaScript实现了音频播放部分。省略了控制风格的css部分，具体参考html文件。
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
   
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>2110951自我介绍</title>
+      <style>
+      </style>
+  </head>
+  
+  <body>
+      <div id="app">
+          <div class="container">
+              <div class="logo">
+                  <img src="icon.jpg" alt="logo" class="icon">
+              </div>
+              <div class="info">
+                  <p class="title">我的主页</p>
+                  <p>史文天</p>
+                  <p>2110688</p>
+                  <p>信息安全二班</p>
+              </div>
+              <a class="github" href="https://github.com/FlandreScarlet36" target="_blank">
+                  访问我的Github
+              </a>
+              <div class="audio">
+                  <p>音频介绍</p>
+                  <audio id="audioElement" src="audio.wav"></audio>
+                  <button id="playButton" onclick="togglePlay()"></button>
+                  <div class="progressBar">
+                      <div class="progressBarFill" :style="{ width: progress + '%' }"></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <script>
+          var audioElement = document.getElementById('audioElement');
+          audioElement.addEventListener('timeupdate', updateProgressBar);
+          audioElement.addEventListener('ended', resetAudio);
+  
+          var isPlaying = false;
+          var playButton = document.getElementById('playButton');
+          playButton.textContent = isPlaying ? '⏸' : '▶️';
+          var progress = 0;
+  
+          function togglePlay() {
+              if (isPlaying) {
+                  audioElement.pause();
+                  playButton.textContent = '▶️';
+              } else {
+                  audioElement.play();
+                  playButton.textContent = '⏸';
+              }
+              isPlaying = !isPlaying;
+          }
+  
+          function updateProgressBar() {
+              var progressBarFill = document.querySelector('.progressBarFill');
+              progress = (audioElement.currentTime / audioElement.duration) * 100;
+              progressBarFill.style.width = progress + '%';
+          }
+  
+          function resetAudio() {
+              audioElement.currentTime = 0;
+              progress = 0;
+              isPlaying = false;
+              playButton.textContent = '▶️';
+          }
+          var audioElement = new Audio('audio.wav');
+          audioElement.addEventListener('timeupdate', updateProgressBar);
+          audioElement.addEventListener('ended', resetAudio);
+          var isPlaying = false;
+          var progress = 0;
+      </script>
+  </body>
+  
+  </html>
+  ```
 
-### 网页HTML设计
-- 客户端发送的消息是纯文本聊天消息。
-- 服务器充当中介，接收客户端的消息并广播给所有其他客户端。
-- 客户端接收到的消息显示在终端上。
+效果展示
 
-### 时序
-- 服务器和客户端之间通过TCP连接进行通信。
-- 客户端连接到服务器后，创建一个接收消息的线程，该线程负责接收服务器发送的消息。
-- 客户端和服务器之间的通信是异步的，可以同时接收和发送消息。
+![image-20231027231530564](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027231530564.png)
 
-## 各模块功能
+## 抓包分析
 
-### 服务器
-- 创建服务器套接字，绑定到指定的端口，并监听客户端连接请求。
-- 当客户端连接到服务器时，为每个客户端创建一个新的线程，该线程用于接收客户端消息。
-- 接收到客户端消息后，将消息广播给所有其他连接到服务器的客户端。
+使用ip地址和tcp.port条件作为筛选器，只留下该网页与服务器的通讯记录。
 
-### 客户端
-- 创建客户端套接字，并连接到指定的服务器IP地址和端口。
-- 创建一个接收消息的线程，该线程用于接收服务器发送的消息。
-- 在终端上接收用户输入，发送消息给服务器。
+![image-20231027223236688](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027223236688.png)
 
-## 程序运行说明
+### 三次握手分析
 
-### 服务器运行
-1. 在服务器代码中指定要监听的IP地址、端口号 `PORT`。
+![image-20231027223611905](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027223611905.png)
 
-2. 定义用户线程，内容包括信息的接收与广播。
+第一次握手由客户端向服务器发送请求，可以看到Seq=0，代表初次建立连接，这次握手将标志位SYN置为1，表示请求建立连接。
 
-   ```c++
-   DWORD WINAPI ThreadFunction(LPVOID lpParameter)//线程函数
-   {
-       int receByt = 0;
-       char RecvBuf[BufSize]; //接收缓冲区
-       char SendBuf[BufSize]; //发送缓冲区
-       //char exitBuf[5];
-       //SOCKET sock = *((SOCKET*)lpParameter);
-       
-       //循环接收信息
-       while (true)
-       {
-           int num = (int)lpParameter; //当前连接的索引
-           Sleep(100); //延时100ms
-           //receByt = recv(sock, RecvBuf, sizeof(RecvBuf), 0);
-           receByt = recv(clientSockets[num], RecvBuf, sizeof(RecvBuf), 0); //接收信息
-           if (receByt > 0) //接收成功
-           {
-               //创建时间戳，记录当前通讯时间
-               auto currentTime = chrono::system_clock::now();
-               time_t timestamp = chrono::system_clock::to_time_t(currentTime);
-               tm localTime;
-               localtime_s(&localTime, &timestamp);
-               char timeStr[50];
-               strftime(timeStr, sizeof(timeStr), "(%Y/%m/%d %H:%M:%S)", &localTime); // 格式化时间
-               SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-               cout << "Client " << clientSockets[num] << ": " << RecvBuf << " " << timeStr << endl;
-               SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-               sprintf_s(SendBuf, sizeof(SendBuf), "%s From %d %s ", RecvBuf, clientSockets[num], timeStr); // 格式化发送信息
-               for (int i = 0; i < MaxClient; i++)//将消息同步到除发送者的所有聊天窗口
-               {
-                   if (condition[i] == 1&&i!=num)
-                   {
-                       send(clientSockets[i], SendBuf, sizeof(SendBuf), 0);//发送信息
-                   }
-               }
-           }
-           else //接收失败
-           {
-               if (WSAGetLastError() == 10054)//客户端主动关闭连接
-               {
-                   //创建时间戳，记录当前通讯时间
-                   auto currentTime = chrono::system_clock::now();
-                   time_t timestamp = chrono::system_clock::to_time_t(currentTime);
-                   tm localTime;
-                   localtime_s(&localTime, &timestamp);
-                   char timeStr[50];
-                   strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
-                   cout << "Client " << clientSockets[num] << " exited at " << timeStr << endl;
-                   closesocket(clientSockets[num]);
-                   current_connect_count--;
-                   condition[num] = 0;
-                   cout << "Current user: " << current_connect_count << endl;
-                   return 0;
-               }
-               else
-               {
-                   cout << "Failed to receive, Error:" << WSAGetLastError() << endl;
-                   break;
-               }
-           }
-       }
-   }
-   
-   ```
+![image-20231027224001355](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027224001355.png)
 
-   
+第二次握手由服务器向客户端发送反馈，SYN和ACK为1，表示服务器同意进行连接。
 
-3. 编译并运行服务器代码。
+![image-20231027224234674](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027224234674.png)
 
-4. 服务器将开始监听指定端口，等待客户端连接请求。接收到请求后为其创建一个单独的线程。
+第三次握手看到Seq=1，表示并非第一次建立连接。ACK为1，表示收到了服务器的回复。
 
-   ```c++
-   while (true)
-   {
-       if (current_connect_count < MaxClient)
-       {
-           int num = check();
-           int addrlen = sizeof(SOCKADDR);
-           clientSockets[num] = accept(serverSocket, (sockaddr*)&clientAddrs[num], &addrlen);//接收客户端请求
-           if (clientSockets[num] == SOCKET_ERROR)//错误处理
-           {
-               perror("Client failed! \n");
-               closesocket(serverSocket);
-               WSACleanup();
-               exit(EXIT_FAILURE);
-           }
-           condition[num] = 1;//连接位置1表示占用
-           current_connect_count++; //当前连接数加1
-           //创建时间戳，记录当前通讯时间
-           auto currentTime = chrono::system_clock::now();
-           time_t timestamp = chrono::system_clock::to_time_t(currentTime);
-           tm localTime;
-           localtime_s(&localTime, &timestamp);
-           char timeStr[50];
-           strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", &localTime); // 格式化时间
-           cout << "Client " << clientSockets[num] << " connected at " << timeStr << endl;
-           cout << "Current user: " << current_connect_count << endl;
-           HANDLE Thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadFunction, (LPVOID)num, 0, NULL);//为当前用户创建线程
-           if (Thread == NULL)//线程创建失败
-           {
-               perror("Thread failed!\n");
-               exit(EXIT_FAILURE);
-           }
-           else
-           {
-               CloseHandle(Thread);
-           }
-       }
-       else
-       {
-           cout << "Server is busy now..." << endl;
-       }
-   }
-   ```
+![image-20231027224640261](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027224640261.png)
 
-   
+### HTTP部分
 
-### 客户端运行
-1. 在客户端代码中指定服务器的IP地址和端口号。
+![image-20231027225101683](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027225101683.png)
 
-2. 启动服务器后启动客户端，客户端将连接到服务器。
+第一个GET请求用于获取HTML界面。状态码304表示客户端有最新的缓存资源，并与服务器上的资源相同，因此服务器发送一个空包和304状态码，告诉客户端可以使用本地缓存资源，用于减少网络流量的浪费。
 
-3. 在终端上，用户可以输入聊天消息，按回车键发送消息。
+获取HTML界面后继续发送GET请求，获取icon.jpg，同样返回304状态码。
 
-   ```c++
-   while (true)
-   {
-       SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | 	FOREGROUND_INTENSITY);
-       cout << ">>";
-       cin.getline(buf, sizeof(buf));
-       if (strcmp(buf, "logout") == 0) //输入exit退出
-       {
-           break;
-       }
-       send(clientSocket, buf, sizeof(buf), 0);//发送消息
-       SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-   }
-   ```
+获取audio.MP3，返回206状态码，这种响应是在客户端表明自己只需要目标URL上的部分资源的时候返回的，是由于客户端在加载一个较大的文件，无法用一个包发送所有文件，因此采用断点续传发送。
 
-5. 客户端通过线程接收到服务器广播的消息后会显示在终端上。
+### 四次挥手
 
-   ```c++
-   DWORD WINAPI recvThread() //接收消息线程
-   {
-   	while (true)
-   	{
-   		char buffer[BufSize] = {};//接收数据缓冲区
-   		if (recv(clientSocket, buffer, sizeof(buffer), 0) > 0)
-   		{
-   			SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-   			cout << buffer << endl;
-   			SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-   			cout << ">>";
-   
-   		}
-   		else if (recv(clientSocket, buffer, sizeof(buffer), 0) < 0)
-   		{
-   			cout << "Connection lost!" << endl;
-   			break;
-   		}
-   	}
-   	Sleep(100);//延时100ms
-   	return 0;
-   }
-   ```
+![image-20231027230109073](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027230109073.png)
 
-### 运行结果
-- 服务器将接收来自客户端的消息，并广播给所有连接的客户端。
+第一次挥手客户端向服务器发送带有FIN和ACK标志位的包，FIN表示客户端要求关闭连接，ACK=2244表示确认了服务器发送的序号为2244的数据，查找后发现是audio.MP3的数据。
 
-  ![image-20231019102100637](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231019102100637.png)
+![image-20231027230508895](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231027230508895.png)
 
-- 客户端会显示服务器广播的消息和用户发送的消息。其中自己发送的消息以蓝色、其他人发送的消息以绿色显示。
+第二次挥手服务器向客户端发送带有ACK标志位的包，表示对客户端请求的确认。
 
-  ![image-20231019102110894](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231019102110894.png)
+第三次挥手客户端收到服务器的确认信息，发送带有FIN和ACK标志位的包，表示客户端准备关闭连接，在客户端发来ACK包后就会关闭连接。
 
-  ![image-20231019102122008](C:\Users\25265\AppData\Roaming\Typora\typora-user-images\image-20231019102122008.png)
+第四次挥手服务器向客户端发送带有ACK标志位的包，关闭服务器连接，同时客户端服务器也准备关闭连接。
 
-### 结束运行
-- 客户端可以通过输入 "logout" 来退出聊天程序。
-- 服务器可以通过关闭终端来终止运行。
+四次挥手后，等待2MSL后，客户端也关闭连接，TCP连接成功断开。
 
-## 运行逻辑合理性
-- 服务器支持多个客户端连接，每个客户端都有自己的线程，使得多人同时聊天成为可能。
-- 服务器接收来自客户端的消息，并在终端上显示，实现了简单的聊天功能。
-- 客户端能够连接到服务器，接收来自服务器的消息并发送消息，实现了基本的聊天客户端功能。
