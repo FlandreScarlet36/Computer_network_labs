@@ -1,0 +1,14 @@
+﻿  send.cpp
+D:\文件\计算机网络\lab3\Send\send.cpp(136,18): warning C4244: “初始化”: 从“std::streamoff”转换到“int”，可能丢失数据
+D:\文件\计算机网络\lab3\Send\send.cpp(358,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+D:\文件\计算机网络\lab3\Send\send.cpp(361,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+send.obj : error LNK2019: 无法解析的外部符号 __imp_closesocket，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_htons，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_inet_addr，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_recvfrom，函数 "bool __cdecl handshake(void)" (?handshake@@YA_NXZ) 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_sendto，函数 "bool __cdecl handshake(void)" (?handshake@@YA_NXZ) 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_socket，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_WSAStartup，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_WSACleanup，函数 main 中引用了该符号
+send.obj : error LNK2019: 无法解析的外部符号 __imp_WSAGetLastError，函数 main 中引用了该符号
+D:\文件\计算机网络\lab3\Send\x64\Debug\Send.exe : fatal error LNK1120: 9 个无法解析的外部命令
