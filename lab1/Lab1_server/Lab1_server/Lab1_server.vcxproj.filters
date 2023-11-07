@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\server.cpp">
+    <ClCompile Include="..\..\..\lab3\3-1\src\UDPsend\send.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

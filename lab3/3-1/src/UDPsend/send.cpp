@@ -10,7 +10,9 @@
 
 using namespace std;
 
-#define PORT 15000
+#pragma comment(lib, "ws2_32.lib")
+
+#define PORT 3939
 #define IP "127.0.0.1"
 #define PACKETSIZE 1500
 #define HEADERSIZE 14
@@ -228,7 +230,7 @@ void sendfile(const char* filename) {
                 // 对方正确收到了这个packet
                 resend = false;
                 hasSent += sendSize - HEADERSIZE;
-                // cout << "send seq = " << seq << " packet successfully!" << endl;
+                cout << "[send]: send " << sendSize - HEADERSIZE << "bytes, seq = " << seq << endl;
                 break;
             } else {
                 resend = true;
@@ -239,7 +241,7 @@ void sendfile(const char* filename) {
         // std::this_thread::sleep_for(std::chrono::microseconds(500));
 
         if (hasSent == fileSize) {
-            cout << "send successfully, send " << fileSize << " bytes." << endl;
+            cout << "send finish, send " << fileSize << " bytes." << endl;
             totalLength += fileSize;
             break;
         }
