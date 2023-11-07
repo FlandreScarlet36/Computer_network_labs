@@ -1,13 +1,13 @@
 ﻿  send.cpp
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(135,18): warning C4244: “初始化”: 从“std::streamoff”转换到“int”，可能丢失数据
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(145,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(151,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(353,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-D:\Files\Computer_Network\lab3\3-1\src\UDPsend\send.cpp(356,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(214,24): warning C4244: “=”: 从“std::streamoff”转换到“int”，可能丢失数据
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(224,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(230,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(448,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(451,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
   正在生成代码
-  1 of 248 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+  2 of 246 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  Lab1_server.vcxproj -> D:\Files\Computer_Network\lab1\Lab1_server\x64\Release\Lab1_server.exe
+  Lab1_server.vcxproj -> D:\文件\计算机网络\lab1\Lab1_server\x64\Release\Lab1_server.exe
