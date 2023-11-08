@@ -91,7 +91,7 @@ bool handshake() {
     header[CHECKSUM_BITS_START] = (u_char)(checksum & 0xFF);
     header[CHECKSUM_BITS_START + 1] = (u_char)(checksum >> 8);
     sendto(sendSocket, header, HEADERSIZE, 0, (SOCKADDR*)&recvAddr, sizeof(SOCKADDR));
-    cout << "send the First Handshake message!" << endl;
+    cout << "Send the First Handshake message!" << endl;
 
     // 接受第二次握手应答报文
     char recvBuf[HEADERSIZE] = { 0 };
@@ -102,11 +102,11 @@ bool handshake() {
         int ack = recvBuf[ACK_BITS_START] + (recvBuf[ACK_BITS_START + 1] << 8)
             + (recvBuf[ACK_BITS_START + 2] << 16) + (recvBuf[ACK_BITS_START + 3] << 24);
         if ((ack == seq + 1) && (recvBuf[FLAG_BIT_POSITION] == 0b110)) { // 0b110代表ACK SYN FIN == 110
-            cout << "successfully received the Second Handshake message!" << endl;
+            cout << "Successfully received the Second Handshake message!" << endl;
             break;
         }
         else {
-            cout << "failed to received the correct Second Handshake message, Handshake failed!" << endl;
+            cout << "Failed to received the correct Second Handshake message, Handshake failed!" << endl;
             return false;
         }
     }
@@ -127,7 +127,7 @@ bool handshake() {
     header[CHECKSUM_BITS_START] = (u_char)(checksum & 0xFF);
     header[CHECKSUM_BITS_START + 1] = (u_char)(checksum >> 8);
     sendto(sendSocket, header, HEADERSIZE, 0, (SOCKADDR*)&recvAddr, sizeof(SOCKADDR));
-    cout << "send the Third Handshake message!" << endl;
+    cout << "Send the Third Handshake message!" << endl;
 
     cout << "Handshake successfully!" << endl;
     return true;
@@ -169,7 +169,7 @@ void recvRespondThread() {
     while (!THREAD_END) {
         recvResult = recvfrom(sendSocket, recvBuf, HEADERSIZE, 0, (SOCKADDR*)&recvAddr, &len);
         if (recvResult == SOCKET_ERROR) {
-            cout << "receive error! sleep!" << endl;
+            cout << "[Error]: receive error! sleep!" << endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             continue;
         }
@@ -240,7 +240,7 @@ void sendfile(const char* filename) {
     // 发送文件
     while (true) {
         if (finishSend) {
-            cout << "[Fin]: send successfully, send " << fileSize << " bytes." << endl;
+            cout << "[Fin]: Send successfully, send " << fileSize << " bytes." << endl;
             totalLength += fileSize;
             break;
         }
@@ -323,14 +323,11 @@ void sendfile(const char* filename) {
                 seq++;
             }
         } else {
-            // 如果不需要重传，也不能再发，就说一下send window已满，等待ack中
-            cout << "Send window is full! Waiting for the response ack..." << endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(TEST_STOPTIME));
         }
 
         // 如果hasSent == fileSize，说明不用再发了，但是还不能结束发送。结束发送的标志只能由接收线程告知，需要确认收到了对方的所有ACK才能结束发送
         if (hasSent == fileSize) {
-            cout << "[Fin]: hasSent == fileSize, but can't finish sending..." << endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             index++;
             if (index == 10) // 如果产生十次hasSent == fileSize且没有结束发送，说明receive端结束了接收packet和发送ack，且最后一个ack丢失了
@@ -359,7 +356,7 @@ void wavehand() {
     header[CHECKSUM_BITS_START] = (u_char)(checksum & 0xFF);
     header[CHECKSUM_BITS_START + 1] = (u_char)(checksum >> 8);
     sendto(sendSocket, header, HEADERSIZE, 0, (SOCKADDR*)&recvAddr, sizeof(SOCKADDR));
-    cout << "send the First Wavehand message!" << endl;
+    cout << "Send the First Wavehand message!" << endl;
 
     // 接收第二次挥手应答报文
     char recvBuf[HEADERSIZE] = { 0 };
@@ -370,11 +367,11 @@ void wavehand() {
         ack = recvBuf[ACK_BITS_START] + (recvBuf[ACK_BITS_START + 1] << 8)
             + (recvBuf[ACK_BITS_START + 2] << 16) + (recvBuf[ACK_BITS_START + 3] << 24);
         if ((ack == seq + 1) && (recvBuf[FLAG_BIT_POSITION] == 0b100)) {
-            cout << "successfully received the Second Wavehand message!" << endl;
+            cout << "Successfully received the Second Wavehand message!" << endl;
             break;
         }
         else {
-            cout << "failed to received the correct Second Wavehand message, Wavehand failed!" << endl;
+            cout << "Failed to received the correct Second Wavehand message, Wavehand failed!" << endl;
             return;
         }
     }
@@ -386,11 +383,11 @@ void wavehand() {
         ack = recvBuf[ACK_BITS_START] + (recvBuf[ACK_BITS_START + 1] << 8)
             + (recvBuf[ACK_BITS_START + 2] << 16) + (recvBuf[ACK_BITS_START + 3] << 24);
         if ((ack == seq + 1) && (recvBuf[FLAG_BIT_POSITION] == 0b101)) {
-            cout << "successfully received the Third Wavehand message!" << endl;
+            cout << "Successfully received the Third Wavehand message!" << endl;
             break;
         }
         else {
-            cout << "failed to received the correct Third Wavehand message, Wavehand failed!" << endl;
+            cout << "Failed to received the correct Third Wavehand message, Wavehand failed!" << endl;
             return;
         }
     }
@@ -417,7 +414,7 @@ void wavehand() {
     header[CHECKSUM_BITS_START] = (u_char)(checksum & 0xFF);
     header[CHECKSUM_BITS_START + 1] = (u_char)(checksum >> 8);
     sendto(sendSocket, header, HEADERSIZE, 0, (SOCKADDR*)&recvAddr, sizeof(SOCKADDR));
-    cout << "send the Forth Wavehand message!" << endl;
+    cout << "Send the Forth Wavehand message!" << endl;
 
     cout << "Wavehand successfully!" << endl;
     return;
@@ -429,18 +426,18 @@ int main() {
         exit(1);
     }
     else {
-        cout << "start success" << endl;
+        cout << "Start success" << endl;
     }
 
     sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sendSocket == SOCKET_ERROR) {
-        cout << "socket error = " << WSAGetLastError() << endl;
+        cout << "Socket error = " << WSAGetLastError() << endl;
         closesocket(sendSocket);
         WSACleanup();
         exit(1);
     }
     else {
-        cout << "socket success" << endl;
+        cout << "Socket success" << endl;
     }
 
     recvAddr.sin_family = AF_INET;
@@ -453,7 +450,7 @@ int main() {
     if (handshake()) {
         while (true) {
             string str;
-            cout << "please input the file name(or q to quit sending): ";
+            cout << "Please input the file name(or q to quit sending): ";
             cin >> str;
             if (str == "q") {
                 THREAD_END = true;

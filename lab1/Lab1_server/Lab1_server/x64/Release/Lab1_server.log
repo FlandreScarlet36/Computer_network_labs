@@ -3,10 +3,10 @@ D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(1,1): warning C4819: 该
 D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(214,24): warning C4244: “=”: 从“std::streamoff”转换到“int”，可能丢失数据
 D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(224,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
 D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(230,5): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(445,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
 D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(448,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-D:\文件\计算机网络\lab3\3-1\src\UDPsend\send.cpp(451,32): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
   正在生成代码
-  2 of 246 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+  5 of 246 functions ( 2.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
