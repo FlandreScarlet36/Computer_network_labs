@@ -1,4 +1,4 @@
-﻿  client.cpp
-D:\文件\计算机网络\lab1\Lab1_client\client.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  LINK : 没有找到 D:\文件\计算机网络\lab1\Lab1_client\x64\Debug\Lab1_client.exe 或上一个增量链接没有生成它；正在执行完全链接
-  Lab1_client.vcxproj -> D:\文件\计算机网络\lab1\Lab1_client\x64\Debug\Lab1_client.exe
+﻿E:\Visual Studio\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Debug\)包含从另一个项目(Lab1_client.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  receive.cpp
+D:\File\Computer_Network\lab3\3-1\src\UDPreceive\receive.cpp(98,35): warning C4244: “=”: 从“u_short”转换到“unsigned char”，可能丢失数据
+  Lab1_client.vcxproj -> D:\File\Computer_Network\lab1\Lab1_client\x64\Debug\Receive.exe

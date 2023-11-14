@@ -1,18 +1,24 @@
 {
+    "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "build",
-            "command": "D:\\mingw64\\bin\\mingw32-make.exe",
-            "args": [],
+            "type": "shell",
+            "label": "g++.exe build active file",
+            "command": "D:\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\exe\\${fileBasenameNoExtension}.exe",
+                "-lws2_32"
+            ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "D:\\mingw64\\bin"
             },
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": "build",
-            "detail": "调试器生成的任务。"
+            "group": "build"
         },
         {
             "type": "cppbuild",
@@ -37,6 +43,5 @@
             },
             "detail": "调试器生成的任务。"
         }
-    ],
-    "version": "2.0.0"
+    ]
 }

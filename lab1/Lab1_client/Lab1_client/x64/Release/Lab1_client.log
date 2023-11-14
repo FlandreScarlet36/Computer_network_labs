@@ -1,10 +1,9 @@
-﻿  receive.cpp
-D:\文件\计算机网络\lab3\3-1\src\UDPreceive\receive.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-D:\文件\计算机网络\lab3\3-1\src\UDPreceive\receive.cpp(360,34): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-D:\文件\计算机网络\lab3\3-1\src\UDPreceive\receive.cpp(364,29): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+﻿E:\Visual Studio\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(Lab1_client.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  receive.cpp
+D:\File\Computer_Network\lab3\3-1\src\UDPreceive\receive.cpp(98,35): warning C4244: “=”: 从“u_short”转换到“unsigned char”，可能丢失数据
   正在生成代码
-  2 of 234 functions ( 0.9%) were compiled, the rest were copied from previous compilation.
+  2 of 169 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  Lab1_client.vcxproj -> D:\文件\计算机网络\lab1\lab1_client\x64\Release\Lab1_client.exe
+  Lab1_client.vcxproj -> D:\File\Computer_Network\lab1\Lab1_client\x64\Release\Receive.exe
